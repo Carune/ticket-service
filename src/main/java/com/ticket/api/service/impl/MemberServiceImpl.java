@@ -1,0 +1,46 @@
+package com.ticket.api.service.impl;
+
+import com.ticket.api.dto.MemberResponse;
+import com.ticket.api.dto.SignUpRequest;
+import com.ticket.api.entity.Member;
+import com.ticket.api.repository.MemberRepository;
+import com.ticket.api.service.MemberService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class MemberServiceImpl implements MemberService {
+
+    private final MemberRepository memberRepository;
+
+    /**
+     * 회원가입
+     */
+    @Override
+    @Transactional
+    public Long signUp(SignUpRequest request) {
+        if (memberRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
+        }
+
+        // 저장 (DTO -> Entity 변환)
+        Member savedMember = memberRepository.save(request.toEntity());
+
+        return savedMember.getId();
+    }
+
+    /**
+     * 회원 조회
+     */
+    @Override
+    public MemberResponse findMember(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        // Entity -> DTO 변환
+        return new MemberResponse(member);
+    }
+}

@@ -1,0 +1,25 @@
+package com.ticket.api.controller;
+
+import com.ticket.api.dto.MemberResponse;
+import com.ticket.api.dto.SignUpRequest;
+import com.ticket.api.service.MemberService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/members")
+public class MemberController {
+    private final MemberService memberService;
+
+    @PostMapping("/signup")
+    public ResponseEntity<Long> signup(@RequestBody SignUpRequest request) {
+        return ResponseEntity.ok(memberService.signUp(request));
+    }
+
+    @GetMapping("/{email}")
+    public ResponseEntity<MemberResponse> findMember(@PathVariable String email) {
+        return ResponseEntity.ok(memberService.findMember(email));
+    }
+}
