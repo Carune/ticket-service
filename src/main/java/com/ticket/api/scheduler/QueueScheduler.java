@@ -19,6 +19,11 @@ public class QueueScheduler {
 
     @Scheduled(fixedDelayString = "${scheduler.queue.delay:1000}") // 딜레이도 설정으로 관리
     public void enterUsers() {
-        queueService.allowUser(fetchSize);
+        // fetchSize는 "이번 tick에서 승급을 시도할 최대 인원"이다.
+        // 실제 승급 수는 남은 active 슬롯(maxActive - currentActive)에 따라 더 작을 수 있다.
+        long moved = queueService.allowUser(fetchSize);
+        if (moved > 0) {
+            log.info("스케줄러 입장 처리 - requested={}, moved={}", fetchSize, moved);
+        }
     }
 }
